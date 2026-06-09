@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
 import Icon from '../components/Icon';
-import { ActionSheet, CfgSheet, LocalSheet, HelplinesSheet } from '../components/Sheets';
+import { ActionSheet, CfgSheet, LocalSheet, HelplinesSheet, SaveSheet } from '../components/Sheets';
 import {
   TRIGGERS, TRIGGER_BY_ID, CONDITION_GROUPS, TRIAGE, HELPLINES,
 } from '../lib/content';
 import { buildPlaybook, countCards } from '../lib/engine';
-import { resolveLocal } from '../lib/local';
+import { resolveLocal, outwardCode } from '../lib/local';
+import { saveEnabled, loadJourney, onAuthChange, saveJourney } from '../lib/save';
 
 const STEPS = { FRONT: 'front', TRIGGER: 'trigger', CONDITION: 'condition', TRIAGE: 'triage', BUILDING: 'building', PLAYBOOK: 'playbook', CRISIS: 'crisis' };
 
@@ -19,6 +20,8 @@ export default function CareJourney() {
   const [local, setLocal] = useState(null);
   const [done, setDone] = useState({});
   const [sheet, setSheet] = useState(null); // {type, card?}
+  const [saveState, setSaveState] = useState({ saved: false, consent: null });
+  const [resumable, setResumable] = useState(null); // a saved row offered on the front door
 
   const playbook = useMemo(
     () => (triggerId ? buildPlaybook(triggerId, conditions, answers) : null),
@@ -26,6 +29,40 @@ export default function CareJourney() {
   );
   const total = playbook ? countCards(playbook) : 0;
   const doneCount = Object.values(done).filter(Boolean).length;
+
+  // Resume: if the saved layer is on and the carer has a saved journey, offer it.
+  useEffect(() => {
+    if (!saveEnabled()) return;
+    let active = true;
+    const check = async () => { const row = await loadJourney(); if (active) setResumable(row || null); };
+    check();
+    const off = onAuthChange(() => check());
+    return () => { active = false; off(); };
+  }, []);
+
+  function resume(row) {
+    setTriggerId(row.trigger_id);
+    setConditions(row.condition_id ? [row.condition_id] : []);
+    setAnswers({});
+    setDone(row.step_state || {});
+    setSaveState({ saved: true, consent: { save: true, condition: row.consent_condition } });
+    setResumable(null);
+    setStep(STEPS.PLAYBOOK);
+  }
+
+  // Persist step changes only when the carer has already opted in to save.
+  function persist(stepState) {
+    if (!saveState.saved || !saveState.consent) return;
+    saveJourney({
+      triggerId,
+      stepState,
+      conditionId: conditions[0] || null,
+      outwardPostcode: answers.postcode ? outwardCode(answers.postcode) : null,
+    }, saveState.consent);
+  }
+  function toggleDone(uid) {
+    setDone((d) => { const next = { ...d, [uid]: !d[uid] }; persist(next); return next; });
+  }
 
   function reset() {
     setTriggerId(null); setConditions([]); setAnswers({}); setTIndex(0);
@@ -66,7 +103,7 @@ export default function CareJourney() {
       </header>
 
       <main className={'cj-main' + (step !== STEPS.PLAYBOOK ? ' cj-narrow' : '')}>
-        {step === STEPS.FRONT && <FrontDoor onStart={() => setStep(STEPS.TRIGGER)} onTalk={() => setSheet({ type: 'help' })} />}
+        {step === STEPS.FRONT && <FrontDoor onStart={() => setStep(STEPS.TRIGGER)} onTalk={() => setSheet({ type: 'help' })} resumable={resumable} onResume={resume} />}
 
         {step === STEPS.TRIGGER && <Triggers onPick={pickTrigger} onBack={() => setStep(STEPS.FRONT)} />}
 
@@ -96,8 +133,9 @@ export default function CareJourney() {
         {step === STEPS.PLAYBOOK && playbook && (
           <Playbook
             triggerId={triggerId} playbook={playbook} done={done} total={total} doneCount={doneCount}
-            onToggle={(uid) => setDone((d) => ({ ...d, [uid]: !d[uid] }))}
+            onToggle={toggleDone}
             onOpen={openCard} onRestart={reset} onTalk={() => setSheet({ type: 'help' })}
+            canSave={saveEnabled()} isSaved={saveState.saved} onSave={() => setSheet({ type: 'save' })}
           />
         )}
 
@@ -110,18 +148,31 @@ export default function CareJourney() {
       {sheet && sheet.type === 'cfg' && <CfgSheet onClose={() => setSheet(null)} />}
       {sheet && sheet.type === 'local' && <LocalSheet local={local} onClose={() => setSheet(null)} />}
       {sheet && sheet.type === 'help' && <HelplinesSheet onClose={() => setSheet(null)} />}
+      {sheet && sheet.type === 'save' && (
+        <SaveSheet
+          ctx={{ triggerId, conditions, done, postcode: answers.postcode, alreadySaved: saveState.saved, savedConsent: saveState.consent }}
+          onClose={() => setSheet(null)}
+          onSaved={(consent) => setSaveState({ saved: !!consent, consent: consent || null })}
+        />
+      )}
     </div>
   );
 }
 
 /* ---------------- Screens ---------------- */
 
-function FrontDoor({ onStart, onTalk }) {
+function FrontDoor({ onStart, onTalk, resumable, onResume }) {
   return (
     <section>
       <p className="cj-eyebrow">The Caring App · free guide</p>
       <h1 className="cj-hero">Something has changed, and you are not sure where to start.</h1>
       <p className="cj-lede">That is exactly what this is for. In a couple of minutes, Care Journey helps you work out what matters now, this month and later, and connects you to the right trusted help.</p>
+      {resumable && (
+        <div className="card" style={{ marginBottom: 20, borderColor: 'var(--primary-300)' }}>
+          <p style={{ margin: '0 0 10px', fontWeight: 600 }}>Welcome back. You have a saved journey.</p>
+          <button className="btn btn-primary" onClick={() => onResume(resumable)}>Pick up where you left off <Icon name="arrow" size={18} /></button>
+        </div>
+      )}
       <div className="card" style={{ marginBottom: 24 }}>
         <p style={{ margin: '0 0 8px', fontWeight: 600 }}>You are probably a carer if you help someone with things like:</p>
         <p className="muted" style={{ margin: 0 }}>shopping, cooking or housework · medication or appointments · money or paperwork · getting washed or dressed · simply keeping an eye on them. Even if you live apart, and even if you would never call yourself a carer.</p>
@@ -234,7 +285,7 @@ function Building({ onDone }) {
   );
 }
 
-function Playbook({ triggerId, playbook, done, total, doneCount, onToggle, onOpen, onRestart, onTalk }) {
+function Playbook({ triggerId, playbook, done, total, doneCount, onToggle, onOpen, onRestart, onTalk, canSave, isSaved, onSave }) {
   const trig = TRIGGER_BY_ID[triggerId];
   const pct = total ? Math.round((doneCount / total) * 100) : 0;
   return (
@@ -277,12 +328,20 @@ function Playbook({ triggerId, playbook, done, total, doneCount, onToggle, onOpe
       ))}
 
       <div className="btn-row">
+        {canSave && (
+          <button className="btn btn-primary" onClick={onSave}>
+            <Icon name="check" size={18} /> {isSaved ? 'Saved · manage' : 'Save my progress'}
+          </button>
+        )}
         <button className="btn btn-ghost" onClick={onTalk}><Icon name="phone" size={18} /> Talk to someone</button>
         <button className="btn-quiet" onClick={onRestart}>Start again</button>
       </div>
 
       <p className="disclaimer">
-        Care Journey gives orientation and signposting, not clinical, legal or financial advice. Every step links to a named, trusted UK source that we check and date. England guidance for now. Your progress is not saved yet, saving to your account is coming soon.
+        Care Journey gives orientation and signposting, not clinical, legal or financial advice. Every step links to a named, trusted UK source that we check and date. England guidance for now.{' '}
+        {canSave
+          ? 'You can save your progress to your account. We never store the name or details of the person you care for.'
+          : 'Your progress is not saved yet, saving to your account is coming soon.'}
       </p>
     </section>
   );

@@ -34,8 +34,17 @@ styles/
 ## Design system
 DM Sans for all UI, Newsreader for the hero heading only, per the approved TCA Design System. Teal is action, peach is decoration only, pill buttons, 20px cards, warm off-white canvas. Tokens live in `styles/tokens.css`.
 
+## Saved-account layer (built, behind a flag)
+Built to the Data & Compliance requirements and **off by default** (`NEXT_PUBLIC_CJ_SAVE=0`). Stateless until enabled. See `DATA.md` for the full compliance mapping and `supabase/migrations/funnav_cj/001_care_journey_saves.sql` for the schema.
+
+- **No cared-for-person identifiers** — there is no field for them anywhere.
+- **Explicit opt-in** — nothing persists unless the carer actively chooses to save (enforced in `lib/save.js` and by RLS).
+- **Granular consent** — the health condition is stored only with a separate tick; a DB CHECK enforces it.
+- **Minimised fields, RLS, retention** — opaque ids + outward postcode only; row-level security locks each row to its owner; a 12-month inactivity purge; self-service delete + export.
+
+To enable (after DPIA sign-off): create the Care Journey Supabase project, run the migration, set `NEXT_PUBLIC_SUPABASE_URL_CJ` / `NEXT_PUBLIC_SUPABASE_ANON_KEY_CJ`, and set `NEXT_PUBLIC_CJ_SAVE=1`. Sign-in is a standalone magic link for now; wiring it to the website SSO / shared account is the remaining task.
+
 ## What is mocked / deferred (by design)
-- **Save to account** — not built. Stateless only until the Compliance DPIA is signed and the data model confirmed.
 - **CFG handoff** — a soft signpost to the Care Funding Guide front door (`/care-funding-guide`). No deep-link parameters and no health data ever cross the boundary (Phil's decision, 9 Jun 2026).
 - **Local routing** — live via postcodes.io; the per-council adult-social-care URL map is the lightweight GOV.UK + Carers Trust route for v1.
 - **AI guide layer** — NOT in v1 (backlog, v1.1+).
