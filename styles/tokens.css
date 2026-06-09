@@ -1,0 +1,160 @@
+/* ============================================================
+   The Caring App — Design Tokens v2
+   Source: TCA Design Brief v1.1 (May 2026)
+   Typeface decision: DM Sans (UI) + Newsreader 700 (website hero only)
+   ============================================================ */
+
+/* Fonts via Google Fonts (DM Sans 400/500/600/700, Newsreader 600/700) */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,600;6..72,700&display=swap');
+
+:root,
+[data-theme="light"] {
+  /* ---------- Primary palette (teal) ---------- */
+  --primary-50:  #EEF8F9;   /* teal wash — selected backgrounds */
+  --primary-100: #D2EEF1;   /* teal tint — badge / info callout */
+  --primary-300: #6EC8D3;   /* focus ring source */
+  --primary-400: #4FB8C4;   /* input focus border */
+  --primary-500: #2DA8B5;   /* brand teal — interactive */
+  --primary-600: #238D99;   /* hover */
+  --primary-700: #1A707B;   /* deep teal — links */
+
+  /* ---------- Accent (decoration only) ---------- */
+  --accent-100: #FDEADA;
+  --accent-500: #E8A578;
+
+  /* ---------- Neutrals ---------- */
+  --neutral-50:  #F9F7F5;
+  --neutral-100: #F0EDE9;
+  --neutral-200: #E2DDD8;
+  --neutral-300: #C8C2BB;
+  --neutral-500: #8E867D;
+  --neutral-700: #4A4440;
+  --neutral-900: #1C1815;
+
+  /* ---------- Semantic / priority ---------- */
+  --priority-low:        #14B07F;
+  --priority-low-bg:     #E0F6EE;
+  --priority-medium:     #E89B2A;
+  --priority-medium-bg:  #FEF3DC;
+  --priority-high:       #DC3545;
+  --priority-high-bg:    #FCEAEC;
+  --color-success: var(--priority-low);
+  --color-warning: var(--priority-medium);
+  --color-error:   var(--priority-high);
+  --color-info:    var(--primary-500);
+
+  /* ---------- Surface roles ---------- */
+  --bg-app:    #F4F8F7;     /* page canvas — never pure white */
+  --bg-card:   #FFFFFF;     /* elevated surface */
+  --border-subtle:  var(--neutral-200);
+  --border-default: var(--neutral-300);
+
+  /* ---------- Text hierarchy (3 levels — use all three) ---------- */
+  --text-primary:   var(--neutral-900);
+  --text-secondary: var(--neutral-700);
+  --text-tertiary:  var(--neutral-500);
+  --text-link:      var(--primary-700);
+  --text-on-primary: #FFFFFF;
+
+  /* ---------- Skeleton ---------- */
+  --skeleton-base:  #E2DDD8;
+  --skeleton-shine: #F0EDE9;
+
+  /* ---------- Spacing (4-pt scale) ---------- */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* ---------- Radii ---------- */
+  --radius-xs:   6px;
+  --radius-sm:   10px;   /* inputs */
+  --radius-md:   14px;
+  --radius-lg:   20px;   /* main cards */
+  --radius-xl:   28px;
+  --radius-pill: 999px;  /* all buttons + badges */
+
+  /* ---------- Shadow (use sparingly) ---------- */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(28,24,21,0.06), 0 2px 4px rgba(28,24,21,0.04);
+  --shadow-lg: 0 12px 32px rgba(28,24,21,0.08), 0 4px 8px rgba(28,24,21,0.04);
+  --focus-ring: 0 0 0 3px rgba(110,200,211,0.50);
+
+  /* ---------- Motion ---------- */
+  --transition-fast:   150ms ease;
+  --transition-base:   220ms ease;
+  --transition-spring: 150ms cubic-bezier(0.2,0.6,0.2,1);
+
+  /* ---------- Typography family + scale ---------- */
+  --font-sans:    'DM Sans', system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif;
+  --font-display: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-mono:    ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* role tokens — size / line-height / weight */
+  --text-display-size: 48px;  --text-display-lh: 1.15; --text-display-w: 700;
+  --text-h1-size: 36px;       --text-h1-lh: 1.15;     --text-h1-w: 700;
+  --text-h2-size: 28px;       --text-h2-lh: 1.35;     --text-h2-w: 600;
+  --text-h3-size: 22px;       --text-h3-lh: 1.35;     --text-h3-w: 600;
+  --text-h4-size: 18px;       --text-h4-lh: 1.35;     --text-h4-w: 600;
+  --text-body-lg-size: 18px;  --text-body-lg-lh: 1.65;--text-body-lg-w: 400;
+  --text-body-size: 16px;     --text-body-lh: 1.5;    --text-body-w: 400;
+  --text-body-sm-size: 14px;  --text-body-sm-lh: 1.5; --text-body-sm-w: 400;
+  --text-caption-size: 12px;  --text-caption-lh: 1.5; --text-caption-w: 600;
+
+  /* Website hero — Newsreader (web only) */
+  --hero-size: 76px; --hero-lh: 1.08; --hero-w: 700; --hero-tracking: -0.015em;
+}
+
+[data-theme="dark"] {
+  --primary-500: #34C99B;
+  --bg-app:      #0E1112;
+  --bg-card:     #1B2022;
+  --border-subtle:  #252C2F;
+  --border-default: #344044;
+  --text-primary:   #D8E2E6;
+  --text-secondary: #9EADB4;
+  --text-tertiary:  #6E7C82;
+  --skeleton-base:  #252C2F;
+  --skeleton-shine: #344044;
+}
+
+/* ============================================================
+   Semantic element styles
+   ============================================================ */
+html, body {
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  background: var(--bg-app);
+  font-size: 16px;
+  line-height: var(--text-body-lh);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.font-display { font-family: var(--font-display); }
+.font-sans    { font-family: var(--font-sans); }
+
+/* Display + headings */
+.hero { font-family: var(--font-display); font-size: var(--hero-size); line-height: var(--hero-lh); font-weight: var(--hero-w); letter-spacing: var(--hero-tracking); color: var(--text-primary); font-variation-settings: 'opsz' 60; }
+.t-display { font-size: var(--text-display-size); line-height: var(--text-display-lh); font-weight: var(--text-display-w); letter-spacing: -0.01em; }
+h1, .t-h1 { font-size: var(--text-h1-size); line-height: var(--text-h1-lh); font-weight: var(--text-h1-w); letter-spacing: -0.01em; }
+h2, .t-h2 { font-size: var(--text-h2-size); line-height: var(--text-h2-lh); font-weight: var(--text-h2-w); }
+h3, .t-h3 { font-size: var(--text-h3-size); line-height: var(--text-h3-lh); font-weight: var(--text-h3-w); }
+h4, .t-h4 { font-size: var(--text-h4-size); line-height: var(--text-h4-lh); font-weight: var(--text-h4-w); }
+.t-body-lg { font-size: var(--text-body-lg-size); line-height: var(--text-body-lg-lh); font-weight: var(--text-body-lg-w); }
+p,  .t-body{ font-size: var(--text-body-size);    line-height: var(--text-body-lh);    font-weight: var(--text-body-w); }
+.t-body-sm { font-size: var(--text-body-sm-size); line-height: var(--text-body-sm-lh); font-weight: var(--text-body-sm-w); }
+.t-caption { font-size: var(--text-caption-size); line-height: var(--text-caption-lh); font-weight: var(--text-caption-w); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); }
+
+.text-primary   { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary  { color: var(--text-tertiary); }
+a, .link { color: var(--text-link); text-decoration: none; }
+a:hover  { text-decoration: underline; text-underline-offset: 3px; }
