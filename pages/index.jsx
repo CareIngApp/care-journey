@@ -22,6 +22,7 @@ export default function CareJourney() {
   const [sheet, setSheet] = useState(null); // {type, card?}
   const [saveState, setSaveState] = useState({ saved: false, consent: null });
   const [resumable, setResumable] = useState(null); // a saved row offered on the front door
+  const [crisisFrom, setCrisisFrom] = useState(STEPS.FRONT); // where the crisis screen was opened from, to return there
 
   const playbook = useMemo(
     () => (triggerId ? buildPlaybook(triggerId, conditions, answers) : null),
@@ -69,6 +70,7 @@ export default function CareJourney() {
     setLocal(null); setDone({}); setSheet(null); setStep(STEPS.FRONT);
   }
   function pickTrigger(t) {
+    if (t.crisis) setCrisisFrom(STEPS.TRIGGER);
     setTriggerId(t.id);
     setStep(t.crisis ? STEPS.CRISIS : STEPS.CONDITION);
   }
@@ -96,7 +98,7 @@ export default function CareJourney() {
         </a>
         {step !== STEPS.CRISIS && (
           <button className="btn btn-ghost" style={{ minHeight: 40, padding: '8px 14px' }}
-            onClick={() => { setTriggerId('t11'); setStep(STEPS.CRISIS); }}>
+            onClick={() => { setCrisisFrom(step); setStep(STEPS.CRISIS); }}>
             <Icon name="lifebuoy" size={18} /> Need help now?
           </button>
         )}
@@ -140,7 +142,7 @@ export default function CareJourney() {
         )}
 
         {step === STEPS.CRISIS && (
-          <Crisis onBack={() => setStep(triggerId === 't11' ? STEPS.FRONT : STEPS.PLAYBOOK)} />
+          <Crisis onBack={() => setStep(crisisFrom)} />
         )}
       </main>
 

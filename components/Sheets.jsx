@@ -23,7 +23,7 @@ function Sheet({ title, onClose, children }) {
   );
 }
 
-function Tel({ ref: hl }) {
+function Tel({ hl }) {
   const h = HELPLINES[hl] || HELPLINES.carersUK;
   return (
     <a className="btn btn-ghost" href={`tel:${h.number.replace(/\s/g, '')}`}>
@@ -49,7 +49,7 @@ export function ActionSheet({ card, onClose }) {
         </div>
       </div>
       <div className="btn-row">
-        <Tel ref={card.helplineRef} />
+        <Tel hl={card.helplineRef} />
       </div>
       <p className="cj-help" style={{ marginTop: 16 }}>Care Journey is orientation and signposting, not advice.</p>
     </Sheet>
