@@ -89,7 +89,7 @@ export function LocalSheet({ local, onClose }) {
           </span>
           <Icon name="external" size={16} />
         </a>
-        <a className="tile" href={(local && local.carerCentreUrl) || 'https://carers.org/network-partners/network-partners-search'} target="_blank" rel="noopener noreferrer">
+        <a className="tile" href={(local && local.carerCentreUrl) || 'https://carers.org/help-for-carers/carer-services-near-you'} target="_blank" rel="noopener noreferrer">
           <span className="tile-ic"><Icon name="pin" size={18} /></span>
           <span className="tile-body">
             <span className="tile-title">Find a nearby carer centre</span>
