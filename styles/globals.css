@@ -63,14 +63,15 @@ body { margin: 0; }
 .tile-ic { flex: 0 0 auto; width: 40px; height: 40px; border-radius: var(--radius-pill); display: grid; place-items: center;
   background: var(--primary-50); color: var(--primary-600); }
 .tile-body { flex: 1 1 auto; min-width: 0; }
-.tile-title { font-weight: 600; color: var(--text-primary); margin: 0; }
-.tile-sub { font-size: var(--text-body-sm-size); color: var(--text-secondary); margin: 4px 0 0; }
+.tile-title { display: block; font-weight: 700; color: var(--text-primary); margin: 0; }
+.tile-sub { display: block; font-size: var(--text-body-sm-size); color: var(--text-tertiary); margin: 4px 0 0; line-height: 1.45; }
 
 /* ---------- Badges / chips ---------- */
 .badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600;
   padding: 4px 10px; border-radius: var(--radius-pill); background: var(--primary-100); color: var(--primary-700); }
 .badge-amber { background: var(--accent-100); color: #9A5B27; }
 .badge-grey { background: var(--neutral-100); color: var(--neutral-700); }
+.badge-start { background: var(--primary-500); color: #fff; }
 
 /* ---------- Playbook ---------- */
 .phase { margin-top: var(--space-8); }
@@ -78,13 +79,13 @@ body { margin: 0; }
 .phase-head h2 { margin: 0; font-size: var(--text-h3-size); font-weight: 700; color: var(--text-primary); }
 .phase-head p { margin: 0; font-size: var(--text-body-sm-size); color: var(--text-tertiary); }
 .action { display: flex; gap: var(--space-4); align-items: flex-start; background: var(--bg-card);
-  border: 1px solid var(--border-subtle); border-left: 4px solid var(--accent-pri, var(--primary-500));
+  border: 1px solid var(--border-subtle); border-left: 3px solid var(--primary-300);
   border-radius: var(--radius-md); padding: var(--space-4) var(--space-5); }
 .action.is-done { opacity: 0.62; }
 .action.is-done .action-title { text-decoration: line-through; }
-.action-pri-high { --accent-pri: var(--priority-high); }
-.action-pri-medium { --accent-pri: var(--priority-medium); }
-.action-pri-low { --accent-pri: var(--priority-low); }
+/* Priority still orders the list (see engine), but is no longer shown as red/amber/green
+   traffic-lights. The single most important step is flagged with a calm "Start here" tag. */
+.action-pri-high, .action-pri-medium, .action-pri-low { --accent-pri: var(--primary-300); }
 .action-check { flex: 0 0 auto; width: 28px; height: 28px; border-radius: var(--radius-pill); border: 2px solid var(--border-default);
   background: var(--bg-card); cursor: pointer; display: grid; place-items: center; color: #fff; margin-top: 2px; }
 .action-check.on { background: var(--primary-500); border-color: var(--primary-500); }

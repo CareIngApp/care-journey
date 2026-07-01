@@ -94,7 +94,7 @@ export default function CareJourney() {
 
       <header className="cj-topbar">
         <a className="cj-brand" href="#" onClick={(e) => { e.preventDefault(); reset(); }}>
-          <Icon name="compass" size={22} /> Care Journey
+          <img src="/care-journey/care-journey-mark.svg" alt="" width={24} height={24} /> Care Journey
         </a>
         {step !== STEPS.CRISIS && (
           <button className="btn btn-ghost" style={{ minHeight: 40, padding: '8px 14px' }}
@@ -210,23 +210,32 @@ function Triggers({ onPick, onBack }) {
 }
 
 function Condition({ value, onChange, onBack, onNext }) {
-  const toggle = (id) => onChange(value.includes(id) ? value.filter((x) => x !== id) : [...value, id]);
+  const CAP = 3;
+  const atCap = value.length >= CAP;
+  const toggle = (id) => {
+    if (value.includes(id)) onChange(value.filter((x) => x !== id));
+    else if (value.length < CAP) onChange([...value, id]);
+  };
   return (
     <section>
       <button className="back" onClick={onBack}><Icon name="back" size={18} /> Back</button>
       <h1 className="cj-q" style={{ marginTop: 8 }}>What is the main health issue?</h1>
-      <p className="cj-lede">This is optional. It just lets us point you to the right specialist charity. You do not need a formal diagnosis to choose.</p>
+      <p className="cj-lede">This is optional. It just lets us point you to the right specialist charity. You do not need a formal diagnosis to choose. Pick up to {CAP}.</p>
       {CONDITION_GROUPS.map((g) => (
         <div key={g.group} style={{ marginBottom: 18 }}>
           <p className="cj-eyebrow" style={{ marginBottom: 8 }}>{g.group}</p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {g.tags.map((t) => (
-              <button key={t.id} className={'btn ' + (value.includes(t.id) ? 'btn-primary' : 'btn-ghost')}
-                style={{ minHeight: 42, padding: '8px 16px' }}
-                aria-pressed={value.includes(t.id)} onClick={() => toggle(t.id)}>
-                {t.label}
-              </button>
-            ))}
+            {g.tags.map((t) => {
+              const sel = value.includes(t.id);
+              const disabled = atCap && !sel;
+              return (
+                <button key={t.id} className={'btn ' + (sel ? 'btn-primary' : 'btn-ghost')}
+                  style={{ minHeight: 42, padding: '8px 16px', opacity: disabled ? 0.45 : 1 }}
+                  aria-pressed={sel} disabled={disabled} onClick={() => toggle(t.id)}>
+                  {t.label}
+                </button>
+              );
+            })}
           </div>
         </div>
       ))}
@@ -290,6 +299,8 @@ function Building({ onDone }) {
 function Playbook({ triggerId, playbook, done, total, doneCount, onToggle, onOpen, onRestart, onTalk, canSave, isSaved, onSave }) {
   const trig = TRIGGER_BY_ID[triggerId];
   const pct = total ? Math.round((doneCount / total) * 100) : 0;
+  // Calm entry point instead of a wall of traffic-light colours: tag only the top step.
+  const firstCardUid = playbook.find((p) => p.cards.length > 0)?.cards[0]?.uid;
   return (
     <section>
       <p className="cj-eyebrow">Your Care Journey</p>
@@ -318,9 +329,10 @@ function Playbook({ triggerId, playbook, done, total, doneCount, onToggle, onOpe
                     <button className="action-link" onClick={() => onOpen(card)}>
                       <Icon name="info" size={14} /> What this means
                     </button>
+                    {card.uid === firstCardUid && <span className="badge badge-start">Start here</span>}
                     {card.flags.includes('cfg') && <span className="badge badge-amber">Funding</span>}
-                    {card.flags.includes('local') && <span className="badge">Local</span>}
-                    {card.flags.includes('nobody') && <span className="badge badge-grey">Few people know this</span>}
+                    {card.flags.includes('local') && <span className="badge">Near you</span>}
+                    {card.flags.includes('nobody') && <span className="badge badge-grey">Often missed</span>}
                   </div>
                 </div>
               </article>
